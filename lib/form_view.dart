@@ -10,9 +10,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:log_9/thankyou.dart';
 
 import 'login.dart';
+import 'pallete.dart';
+import 'profile.dart';
 
 class Form_view extends StatefulWidget {
   const Form_view({Key? key}) : super(key: key);
@@ -34,47 +35,59 @@ class _Form_viewState extends State<Form_view> {
   List<File> multipleImages = [];
   List categoryItemlist = [];
   var photo;
-  
+  void clearText() {
+    name.clear();
+    odoometer.clear();
+    number.clear();
+    landmark.clear();
+    registration_number.clear();
+    value.clear();
+    yesno.clear();
+  }
 
-  // void getRequest() async {
-  //   var session = await storage.read(key: 'cookie');
-  //   var url = Uri.parse("https://mobility-staging.odoo.com/my_services_api/partner/helpdesk_teams");
-  //   var response = await http.get(url,headers: {
-  //     "Cookie": session.toString(),
-  //   });
-  //    if (response.statusCode == 200) {
-  //     var jsonData = json.decode(response.body);
-  //     setState(() {
-  //       categoryItemlist = jsonData;
-  //     });
-  //   }
-  //   print("categoryItemList");
-  //   print(categoryItemlist);
-   
-  //   print("-----------------------------------------");
-  //   print(response.headers.toString());
+//   void getRequest() async {
+//     var session = await storage.read(key: 'cookie');
+//     var url = Uri.parse("https://mobility-staging.odoo.com/my_services_api/partner/helpdesk_teams");
+//     var response = await http.get(url,headers: {
+//       "Cookie": session.toString(),
+//     });
+//      if (response.statusCode == 200) {
+//       var jsonData = json.decode(response.body);
+//       setState(() {
+//         categoryItemlist = jsonData;
+//       });
+//     }
+//     print("categoryItemList");
+//     print(categoryItemlist);
 
-  // }
+//     print("-----------------------------------------");
+//     print(response.headers.toString());
+
+//   }
+// //  api_help
+//   void initState(){
+//     super.initState();
+//     getRequest();
+//   }
   String dropdownValue = 'Yes';
   String dropdownValuenew = "Karnataka";
   var lat = 0.0;
   var lon = 0.0;
   var _cad = '';
   final storage = FlutterSecureStorage();
-    void postdata() async {
+  void postdata() async {
     var session = await storage.read(key: 'cookie');
     var jsonMap = {
-      "team_name":dropdownValuenew.toString(),
-      "name" : name.text,
-      "registration_number" : registration_number.text,
-      "odoometer" : odoometer.text,
-      "partner_phone":number.text,
-      "landmark":landmark.text,
-      "latitude":lat.toString(),
-      "longitude":lon.toString(),
-      "location":_cad.toString(),
-      "picture_of_defect":photo.toString()
-     
+      "team_name": dropdownValuenew.toString(),
+      "name": name.text,
+      "registration_number": registration_number.text,
+      "odoometer": odoometer.text,
+      "partner_phone": number.text,
+      "landmark": landmark.text,
+      "latitude": lat.toString(),
+      "longitude": lon.toString(),
+      "location": _currentAddress.toString(),
+      "picture_of_defect": photo.toString()
     };
     print(registration_number.text);
 
@@ -93,91 +106,144 @@ class _Form_viewState extends State<Form_view> {
     var desc = det['description'];
     print(det['description']);
     print("-----------------------------------");
-    var ticket_number =det['ticket_seq'];
+    var ticket_number = det['ticket_seq'];
     print(det['ticket_seq']);
-   
-    if (response.statusCode == 200) {
-       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Thankyou for Submitting Ticket and \nYour Ticket Number is \n"+det['ticket_seq']),
-        behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.only(bottom: 100.0),
-          duration: const Duration(milliseconds: 30000)      
-      ));
 
-      
-    }
-    else if (response.statusCode == 400) {
+    if (response.statusCode == 200) {
+      Widget okButton = TextButton(
+        child: Text(
+          "OK",
+        ),
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      );
+      AlertDialog alert = AlertDialog(
+        title: Text(
+          "Ticket Number",
+          style: TextStyle(color: Palette.kToDark),
+        ),
+        content: Text(
+            "Thankyou for Submitting Ticket and \nYour Ticket Number is " +
+                det['ticket_seq'],
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            )),
+        actions: [
+          okButton,
+        ],
+      );
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
+      clearText();
+    } else if (response.statusCode == 400) {
       var det = jsonDecode(response.body);
       var desc = det['description'];
-     
-  
+      // print(desc.text);
+      RegExp exp = RegExp(r"<[^>]*>", multiLine: true, caseSensitive: true);
+      String parsedstring = desc.replaceAll(exp, '');
+      print(parsedstring);
+
       print("==========================================");
-   
-      print(desc);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(desc),
-        behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.only(bottom: 100.0),
-          duration: const Duration(milliseconds: 2000)      
-      ));
-  }
-    }
-  void initState() {
-    super.initState();
-    setState(() {
-      _determinePosition();
-    });
-  }
-
- _getAddressFromLatLng() async {
-    try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(lat, lon);
-      Placemark place = placemarks[0];
-      setState(() {
-        _cad = "${place.subLocality}";
-        //${place.thoroughfare}
-        var aa = _cad.toString();
-      });
-    } catch (e) {
-      print(e);
+      Widget okButton = TextButton(
+        child: Text("OK"),
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      );
+      AlertDialog alert = AlertDialog(
+        title: Text(
+          "Error",
+          style: TextStyle(color: Palette.kToDark),
+        ),
+        content: Text(parsedstring),
+        actions: [
+          okButton,
+        ],
+      );
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
     }
   }
 
-  _determinePosition() async {
+  String? _currentAddress;
+  Position? _currentPosition;
+
+  Future<bool> _handleLocationPermission() async {
     bool serviceEnabled;
     LocationPermission permission;
+
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      print('Location services are disabled.');
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location services are disabled. Please enable the services')));
+      return false;
     }
-
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        print('Location permissions are denied');
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Location permissions are denied')));
+        return false;
       }
     }
-
     if (permission == LocationPermission.deniedForever) {
-      print(
-          'Location permissions are permanently denied, we cannot request permissions.');
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+              'Location permissions are permanently denied, we cannot request permissions.')));
+      return false;
     }
-    
-    Geolocator.getCurrentPosition().then((value) {
-      setState(() {
-        lat = value.latitude;
-        print(lat);
-        lon = value.longitude;
-        print(lon);
-      });
-      _getAddressFromLatLng();
+    return true;
+  }
+
+  Future<void> _getCurrentPosition() async {
+    final hasPermission = await _handleLocationPermission();
+
+    if (!hasPermission) return;
+    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+        .then((Position position) {
+      setState(() => _currentPosition = position);
+      _getAddressFromLatLng(_currentPosition!);
+    }).catchError((e) {
+      debugPrint(e);
     });
   }
+
+  Future<void> _getAddressFromLatLng(Position position) async {
+    await placemarkFromCoordinates(
+            _currentPosition!.latitude, _currentPosition!.longitude)
+        .then((List<Placemark> placemarks) {
+      Placemark place = placemarks[0];
+      setState(() {
+        _currentAddress =
+            '${place.street}, ${place.subLocality}, ${place.subAdministrativeArea}';
+        lat = _currentPosition!.latitude;
+        print(lat);
+        lon = _currentPosition!.longitude;
+        print(lon); // ${place.subAdministrativeArea}, ${place.postalCode}
+      });
+    }).catchError((e) {
+      debugPrint(e);
+    });
+    print(_currentPosition!.latitude);
+    print(_currentPosition!.longitude);
+    print(_currentAddress);
+  }
+
   final ImagePicker imgpicker = ImagePicker();
   String imagepath = "";
-  
-  openImage() async {
+
+ openImage() async {
     try {                  
         var pickedFile = await imgpicker.pickImage(source: ImageSource.gallery);
         //you can use ImageCourse.camera for Camera capture
@@ -193,15 +259,8 @@ class _Form_viewState extends State<Form_view> {
               
               print(base64string); 
               print("--------------------------------------------------");
-              log(base64string);
-        
-              // Uint8List decodedbytes = base64.decode(base64string);
-              // List<XFile>? picked = await _picker.pickMultiImage();
-              // String base64string = base64.encode(imagebytes); 
-              // print(base64string); 
-              // print("--------------------------------------------------");
               // log(base64string);
-              //  Uint8List decodedbytes = base64.decode(base64string);
+
               setState(() {
                 photo = base64string;
               });
@@ -212,302 +271,294 @@ class _Form_viewState extends State<Form_view> {
         print("error while picking file.");
     }
   }
-@override
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title:Image.asset('assets/log_9.png',),
-        backgroundColor: Color.fromARGB(255, 236, 236, 236),  
+        title: Image.asset(
+          'assets/log_9.png',
+        ),
+        backgroundColor: Color.fromARGB(255, 236, 236, 236),
         centerTitle: true,
         elevation: 3,
-        
-        // leading: IconButton(
-        //   onPressed: () {
-        //     // Navigator.pop(context);
-        //   },
-        //   icon: Icon(
-        //     Icons.arrow_back,
-        //   ),
-        // ),
-        //  actions: [
-        //   IconButton(
-        //       onPressed: () {
-        //         // storage.deleteAll();
-        //         Navigator.pop(context, true);
-        //         Navigator.push(
-        //             context,
-        //             MaterialPageRoute(
-        //               builder: (context) => login(),
-        //             ));
-        //       },
-        //       icon: Icon(Icons.power_settings_new)),
-        // ],
       ),
-      
-      body: SingleChildScrollView(
-        child: Column(children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(30.0, 0.0,30.0, 10.0),
-            child: Row(
-              children: [
-                Text('  Region    :       ',
-                style: TextStyle(fontSize: 20),),
-                DropdownButton(  
-                 value: dropdownValuenew,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      dropdownValuenew = newValue!;
-                      print(dropdownValuenew);
-                    });
-                  },
-                  items: <String>[
-                    'Karnataka',//KA51AH1061
-                    'Delhi',
-                    // 'Tamil Nadu',
-                    // 'Uttar Pradesh',
-                    // 'Telangana',
-                    // 'Kerala',
-                    // 'Maharastra',
-                  ].map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 50, 0),
-                        child: Text(value,
-                        style: TextStyle(fontSize: 20),),
-                      ),
-                    );
-                    
-                  }).toList(),
-                ),
-              ],
+      endDrawer: Drawer(
+        child: ListView(
+          children: <Widget>[
+            DrawerHeader(
+              child: Text('Menu', style: TextStyle(fontSize: 20)),
+              decoration: BoxDecoration(
+                color: Palette.kToDark,
+              ),
             ),
-          ),
-          // Padding(
-          //   padding: const EdgeInsets.fromLTRB(30.0, 10.0,30.0, 10),
-          //   child: Row(
-          //     children: [
-          //       Text('  Region    :       ',
-          //       style: TextStyle(fontSize: 20),), 
-          //       DropdownButton(   
-          //           value: dropdownValuenew,
-          //           items: categoryItemlist.map((item) {
-          //             return new DropdownMenuItem(
-          //               child: new Text(
-          //                 item,   
-          //                 style: TextStyle(
-          //                 fontSize: 20.0,
-          //                 ),
-          //               ),  
-          //                 value: item.toString()      
-          //              );  
-          //           }).toList(),  
-                     
-          //             onChanged: (String? newValue) {
-          //           setState(() {
-          //             dropdownValuenew = newValue!;
-          //             print(dropdownValuenew);
-          //           });
-          //         }, 
-          //       ),
-          //     ],
-          //   ),
-          // ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(30.0, 0.0,30.0,10.0),
-            child: TextField(
-              controller: registration_number,
-              decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Registration Number',
-                  isDense: true),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home', style: TextStyle(fontSize: 20)),
+              onTap: () {
+                Navigator.pop(context);
+              },
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(30.0, 0.0,30.0,10.0),
-            child: TextField(
-              controller: odoometer,
-              decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Odometer reading',
-                  isDense: true),
-                  keyboardType: TextInputType.number,
-                  inputFormatters:  [
-                  FilteringTextInputFormatter.digitsOnly,
-                  ],
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text(
+                'My Profile',
+                style: TextStyle(fontSize: 20),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Profile(),
+                  ),
+                );
+              },
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(30.0, 0.0,30.0,10.0),
-            child: TextField(
-              controller: name,
-              decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Issue being faced',
-                  isDense: true),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text(
+                'Logout',
+                style: TextStyle(fontSize: 20),
+              ),
+              onTap: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => login()),
+                  (Route<dynamic> route) => false,
+                );
+              },
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(30.0, 0.0,30.0, 10.0),
-            child: TextField(
-              controller: number,
-              decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Contact Number',
-                 
-                  isDense: true),
-                  keyboardType: TextInputType.number,
-                  inputFormatters:  [
-                  FilteringTextInputFormatter.digitsOnly,
-                  ],     
-            ),  
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(30.0, 0.0,30.0,10.0), 
-            child: Column(
-               children: [   
-              //     imagepath != ""?Image.file(File(imagepath)):
-                 Container( 
-                      child: Text("Photo of issue being faced",
-                      style: TextStyle(fontSize: 20),),
-                    ),
-              //       ElevatedButton(
-              //         onPressed: (){
-              //             openImage();
-              //         }, 
-              //         child: Text("Browse")
-                      
-              //       ),
-              //  ]
-          // children: [
-            // ElevatedButton(
-            //     onPressed: () async {
-            //       // XFile? pickedImage = await _picker.pickImage(source: ImageSource.gallery);
-            //     XFile? video=  await _picker.pickVideo(source: ImageSource.gallery);
-            //       setState(() {
-            //         image = File(video!.path);
-            //       });
-            //       print("Video ${image!.path}");
-            //     },
-            //     child: Text("Image Picker")),
-            
-            // ElevatedButton(
-            //     onPressed: () 
-            //      async{
-            //       List<XFile>? picked = await _picker.pickMultiImage();
-            //       setState(() {
-            //         multipleImages = picked.map((e) => File(e.path)).toList();
-            //          openImage();
-            //       });
-            //     },
-            //     child: const Text("Browse")),
-
-            ElevatedButton(
-                      onPressed: (){
-                          openImage();
-                      }, 
-                      child: Text("Browse")  
-                    ),
           ],
         ),
-            ), 
-          
-           Padding(
-            padding: const EdgeInsets.fromLTRB(30.0, 0.0,30.0, 10.0),
-            child: Row(
-              children: [
-                Text('  Is vehicle in \n Breakdown state    :     ',
-                style: TextStyle(fontSize: 20),),
-                DropdownButton(  
-                 value: dropdownValue,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      dropdownValue = newValue!;
-                    });
-                  },
-                  items: <String>[
-                    'Yes',
-                    'No',
-                  ].map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 50, 0),
-                        child: Text(value,
-                        style: TextStyle(fontSize: 20),),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(30.0, 10.0,30.0, 10),
-            child: TextField(
-              controller: landmark,
-              decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Nearest Landmark',
-                  isDense: true),
-            ),
-          ),
-
-          Padding(
-              padding: EdgeInsets.all(20),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      ),
+      body: SingleChildScrollView(
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(30.0, 10.0, 30.0, 10.0),
+                child: Row(
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.location_on,
-                          color: Colors.black,
-                        ),     
-                        Text(_cad,
-                        textAlign: TextAlign.center,style: TextStyle(fontSize: 20),)
-                        // SizedBox(
-                        //   width: 300,
-                        //   child: Text(
-                        //     // _cad,
-                        //     style: TextStyle(overflow: TextOverflow.visible,fontSize: 30),
-                        //   ),
-                        // ),
-                      ],
+                    Text(
+                      '  Region    :       ',
+                      style: TextStyle(fontSize: 20),
                     ),
-                  ]),
-            ),
-          Padding(padding: EdgeInsets.all(10)),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              onPrimary: Colors.black87,
-              minimumSize: Size(250, 40),
-              padding: EdgeInsets.all(10),
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
+                    DropdownButton(
+                      value: dropdownValuenew,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          dropdownValuenew = newValue!;
+                          print(dropdownValuenew);
+                        });
+                      },
+                      items: <String>[
+                        'Karnataka', //KA51AH1061
+                        'Delhi',
+                        // 'Tamil Nadu',
+                        // 'Uttar Pradesh',
+                        'Telangana',
+                        // 'Kerala',
+                        // 'Maharastra',
+                      ].map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 50, 0),
+                            child: Text(
+                              value,
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            onPressed:() {               
-              postdata();
-            },       
-            child: Text(
-              'Submit',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20
+              // Padding(
+              //   padding: const EdgeInsets.fromLTRB(30.0, 10.0,30.0, 10),
+              //   child: Row(
+              //     children: [
+              //       Text('  Region    :       ',
+              //       style: TextStyle(fontSize: 20),),
+              //       DropdownButton(
+              //           value: dropdownValuenew,
+              //           items: categoryItemlist.map((item) {
+              //             return new DropdownMenuItem(
+              //               child: new Text(
+              //                 item,
+              //                 style: TextStyle(
+              //                 fontSize: 20.0,
+              //                 ),
+              //               ),
+              //                 value: item.toString()
+              //              );
+              //           }).toList(),
+
+              //             onChanged: (String? newValue) {
+              //           setState(() {
+              //             dropdownValuenew = newValue!;
+              //             print(dropdownValuenew);
+              //           });
+              //         },
+              //       ),
+              //     ],
+              //   ),
+              // ),
+
+              Padding(
+                padding: const EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 10.0),
+                child: TextField(
+                  controller: registration_number,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Registration Number',
+                      isDense: true),
+                ),
               ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 10.0),
+                child: TextField(
+                  controller: odoometer,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Odometer reading',
+                      isDense: true),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(30.0, 10.0, 30.0, 10.0),
+                child: TextField(
+                  controller: name,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Issue being faced',
+                      isDense: true),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 10.0),
+                child: TextField(
+                  controller: number,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Contact Number',
+                      isDense: true),
+                  keyboardType: TextInputType.phone,
+                  // inputFormatters:  [
+                  // FilteringTextInputFormatter.digitsOnly,
+                  // ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 10.0),
+                child: Column(
+                  children: [
+                    //     imagepath != ""?Image.file(File(imagepath)):
+                    Container(
+                      child: Text(
+                        "Photo of issue being faced",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    ),
+                    ElevatedButton(
+                        onPressed: () {
+                          openImage();
+                        },
+                        child: Text("Browse")),
+                  ],
+                ),
               ),
 
-            ),
-        ],
+              Padding(
+                padding: const EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 10.0),
+                child: Row(
+                  children: [
+                    Text(
+                      '  Is vehicle in \n Breakdown state    :     ',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    DropdownButton(
+                      value: dropdownValue,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          dropdownValue = newValue!;
+                        });
+                      },
+                      items: <String>[
+                        'Yes',
+                        'No',
+                      ].map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 50, 0),
+                            child: Text(
+                              value,
+                              style: TextStyle(fontSize: 20),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(30.0, 10.0, 30.0, 10),
+                child: TextField(
+                  controller: landmark,
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Nearest Landmark',
+                      isDense: true),
+                ),
+              ),
+
+              Padding(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('${_currentAddress ?? ""}'),
+                      const SizedBox(height: 32),
+                      ElevatedButton(
+                        onPressed: _getCurrentPosition,
+                        child: const Text("Get Current Location"),
+                      ),
+                    ]),
+              ),
+              Padding(padding: EdgeInsets.all(10)),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  onPrimary: Colors.black87,
+                  minimumSize: Size(250, 40),
+                  padding: EdgeInsets.all(10),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                ),
+                onPressed: () {
+                  postdata();
+
+                  // showAlertDialog(context);
+                },
+                child: Text(
+                  'Submit',
+                  style: TextStyle(color: Colors.white, fontSize: 20),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      
     );
-
-    
   }
 }
