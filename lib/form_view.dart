@@ -10,10 +10,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:image_picker/image_picker.dart';
-
 import 'login.dart';
 import 'pallete.dart';
 import 'profile.dart';
+import 'tickets.dart';
 
 class Form_view extends StatefulWidget {
   const Form_view({Key? key}) : super(key: key);
@@ -243,32 +243,33 @@ class _Form_viewState extends State<Form_view> {
   final ImagePicker imgpicker = ImagePicker();
   String imagepath = "";
 
- openImage() async {
-    try {                  
-        var pickedFile = await imgpicker.pickImage(source: ImageSource.gallery);
-        //you can use ImageCourse.camera for Camera capture
-        if(pickedFile != null){
-              imagepath = pickedFile.path;
-              print(imagepath); 
-              File imagefile = File(imagepath); 
-              // List<int> imagebytes = imagefile.readAsBytesSync();
-              
+  openImage() async {
+    try {
+      List<String> base64Images = [];
 
-              Uint8List imagebytes = await imagefile.readAsBytes(); 
-              String base64string = base64.encode(imagebytes); 
-              
-              print(base64string); 
-              print("--------------------------------------------------");
-              // log(base64string);
+      var pickedFile = await imgpicker.pickImage(source: ImageSource.gallery);
+      //you can use ImageCourse.camera for Camera capture
+      if (pickedFile != null) {
+        imagepath = pickedFile.path;
+        print(imagepath);
+        File imagefile = File(imagepath);
+        // List<int> imagebytes = imagefile.readAsBytesSync();
 
-              setState(() {
-                photo = base64string;
-              });
-        }else{
-           print("No image is selected.");
-        }
-    }catch (e) {
-        print("error while picking file.");
+        Uint8List imagebytes = await imagefile.readAsBytes();
+        String base64string = base64.encode(imagebytes);
+
+        print(base64string);
+        // print("--------------------------------------------------");
+        // log(base64string);
+
+        setState(() {
+          photo = base64string;
+        });
+      } else {
+        print("No image is selected.");
+      }
+    } catch (e) {
+      print("error while picking file.");
     }
   }
 
@@ -316,6 +317,21 @@ class _Form_viewState extends State<Form_view> {
               },
             ),
             ListTile(
+              leading: Icon(Icons.person),
+              title: Text(
+                'My Tickets',
+                style: TextStyle(fontSize: 20),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => Tickets(),
+                  ),
+                );
+              },
+            ),
+            ListTile(
               leading: Icon(Icons.logout),
               title: Text(
                 'Logout',
@@ -334,8 +350,8 @@ class _Form_viewState extends State<Form_view> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
+          // width: MediaQuery.of(context).size.width,
+          // height: MediaQuery.of(context).size.height,
           child: Column(
             children: [
               Padding(
@@ -452,16 +468,12 @@ class _Form_viewState extends State<Form_view> {
                       labelText: 'Contact Number',
                       isDense: true),
                   keyboardType: TextInputType.phone,
-                  // inputFormatters:  [
-                  // FilteringTextInputFormatter.digitsOnly,
-                  // ],
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 10.0),
                 child: Column(
                   children: [
-                    //     imagepath != ""?Image.file(File(imagepath)):
                     Container(
                       child: Text(
                         "Photo of issue being faced",
@@ -472,7 +484,12 @@ class _Form_viewState extends State<Form_view> {
                         onPressed: () {
                           openImage();
                         },
-                        child: Text("Browse")),
+                        child: Text("Photo")),
+                    // ElevatedButton(
+                    // onPressed: () {
+                    //   openImage();
+                    // },
+                    // child: Text("Photo 1")),
                   ],
                 ),
               ),

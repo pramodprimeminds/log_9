@@ -5,7 +5,6 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
-
 import 'pallete.dart';
 
 class Profile extends StatefulWidget {
@@ -39,7 +38,7 @@ class _ProfileState extends State<Profile> {
       //   aaa = det;
       // });
       return det;
-    }
+    } //pradeepb@micelio.com
     return Map();
   }
 
@@ -82,12 +81,25 @@ class _ProfileState extends State<Profile> {
                     children: <Widget>[
                       Align(
                         alignment: Alignment.bottomLeft,
-                        child: Text(
-                          "Name :  ${snapshot.data!['name'].toString()}",
-                          style: TextStyle(
-                            fontSize: 20,
-                          ),
-                        ),
+
+                        child: Text.rich(TextSpan(
+                            text: "Name : ",
+                            style: TextStyle(fontSize: 20),
+                            children: <InlineSpan>[
+                              TextSpan(
+                                text: snapshot.data!['name'].toString(),
+                                style: TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
+                              )
+                            ])),
+
+                        //     "Name :  ${snapshot.data!['name'].toString()}",
+                        //     style: TextStyle(
+                        //       fontSize: 20,
+                        //       fontWeight: FontWeight.bold
+                        //     ),
+                        //   ),
+                        // ),
                       ),
                       SizedBox(
                         height: 25,
@@ -96,7 +108,6 @@ class _ProfileState extends State<Profile> {
                         alignment: Alignment.topLeft,
                         child: Text(
                           "User Id : ${snapshot.data!['id'].toString()}",
-                          textAlign: TextAlign.left,
                           style: TextStyle(
                             fontSize: 20,
                           ),
@@ -115,7 +126,7 @@ class _ProfileState extends State<Profile> {
                         ),
                       ),
                       SizedBox(
-                        height:25,
+                        height: 25,
                       ),
                       Align(
                         alignment: Alignment.topLeft,
@@ -127,7 +138,7 @@ class _ProfileState extends State<Profile> {
                         ),
                       ),
                       SizedBox(
-                        height:25,
+                        height: 25,
                       ),
                       Align(
                         alignment: Alignment.topLeft,
@@ -139,7 +150,7 @@ class _ProfileState extends State<Profile> {
                         ),
                       ),
                       SizedBox(
-                        height:25,
+                        height: 25,
                       ),
                       Align(
                         alignment: Alignment.topLeft,
@@ -151,7 +162,7 @@ class _ProfileState extends State<Profile> {
                         ),
                       ),
                       SizedBox(
-                        height:25,
+                        height: 25,
                       ),
                       Align(
                         alignment: Alignment.topLeft,
