@@ -148,7 +148,6 @@ class _Form_viewState extends State<Form_view> {
       String parsedstring = desc.replaceAll(exp, '');
       print(parsedstring);
 
-      print("==========================================");
       Widget okButton = TextButton(
         child: Text("OK"),
         onPressed: () {
@@ -243,35 +242,69 @@ class _Form_viewState extends State<Form_view> {
   final ImagePicker imgpicker = ImagePicker();
   String imagepath = "";
 
-  openImage() async {
-    try {
-      List<String> base64Images = [];
+//   openImage() async {
+//     try {
+//       List<String> base64Images = [];
 
-      var pickedFile = await imgpicker.pickImage(source: ImageSource.gallery);
-      //you can use ImageCourse.camera for Camera capture
-      if (pickedFile != null) {
-        imagepath = pickedFile.path;
-        print(imagepath);
-        File imagefile = File(imagepath);
-        // List<int> imagebytes = imagefile.readAsBytesSync();
+//       var pickedFile = await imgpicker.pickImage(source: ImageSource.gallery);
+//       //you can use ImageCourse.camera for Camera capture
+//       if (pickedFile != null) {
+//         imagepath = pickedFile.path;
+//         print(imagepath);
+//         File imagefile = File(imagepath);
 
-        Uint8List imagebytes = await imagefile.readAsBytes();
-        String base64string = base64.encode(imagebytes);
+//         // List<int> imagebytes = imagefile.readAsBytesSync();
 
-        print(base64string);
-        // print("--------------------------------------------------");
-        // log(base64string);
+//         Uint8List imagebytes = await imagefile.readAsBytes();
+//         String base64string = base64.encode(imagebytes);
+//         List<String> convertMultipleImagesToBase64(List<File> images) {
+//   List<String> base64Images = [];
+//   for (var i = 0; i < images.length; i++) {
+//     List<int> imageBytes = images[i].readAsBytesSync();
+//     String base64Image = base64Encode(imageBytes);
+//     base64Images.add(base64Image);
+//   }
+//   print(base64Images);
+//   return base64Images;
+  
+// }
 
-        setState(() {
-          photo = base64string;
-        });
-      } else {
-        print("No image is selected.");
-      }
-    } catch (e) {
-      print("error while picking file.");
-    }
+//         print(base64string);
+//         // print("--------------------------------------------------");
+//         // log(base64string);
+
+//         setState(() {
+//           photo = base64string;
+//         });
+//       } else {
+//         print("No image is selected.");
+//       }
+//     } catch (e) {
+//       print("error while picking file.");
+//     }
+Future<List<String>> pickAndConvertImages() async {
+  final ImagePicker _picker = ImagePicker();
+  
+  // Pick multiple images from the gallery
+  final List<XFile>? pickedFiles = await _picker.pickMultiImage();
+  
+  if (pickedFiles == null) {
+    return [];
   }
+  
+  // Convert the images to base64 strings
+  List<String> base64Images = [];
+  for (var pickedFile in pickedFiles) {
+    List<int> imageBytes = await pickedFile.readAsBytes();
+    String base64Image = base64Encode(imageBytes);
+    print("base64Image${base64Image}");
+    log(base64Image);
+    base64Images.add(base64Image);
+  }
+  
+  return base64Images;
+}
+  
 
   @override
   Widget build(BuildContext context) {
@@ -350,8 +383,8 @@ class _Form_viewState extends State<Form_view> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          // width: MediaQuery.of(context).size.width,
-          // height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
           child: Column(
             children: [
               Padding(
@@ -424,7 +457,6 @@ class _Form_viewState extends State<Form_view> {
               //     ],
               //   ),
               // ),
-
               Padding(
                 padding: const EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 10.0),
                 child: TextField(
@@ -467,8 +499,8 @@ class _Form_viewState extends State<Form_view> {
                       border: OutlineInputBorder(),
                       labelText: 'Contact Number',
                       isDense: true),
-                  keyboardType: TextInputType.phone,
-                ),
+                  keyboardType: TextInputType.phone,   
+                ), 
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 10.0),
@@ -482,14 +514,10 @@ class _Form_viewState extends State<Form_view> {
                     ),
                     ElevatedButton(
                         onPressed: () {
-                          openImage();
+                          // openImage();
+                         pickAndConvertImages();
                         },
                         child: Text("Photo")),
-                    // ElevatedButton(
-                    // onPressed: () {
-                    //   openImage();
-                    // },
-                    // child: Text("Photo 1")),
                   ],
                 ),
               ),
@@ -538,7 +566,6 @@ class _Form_viewState extends State<Form_view> {
                       isDense: true),
                 ),
               ),
-
               Padding(
                 padding: EdgeInsets.all(20),
                 child: Column(
@@ -564,8 +591,6 @@ class _Form_viewState extends State<Form_view> {
                 ),
                 onPressed: () {
                   postdata();
-
-                  // showAlertDialog(context);
                 },
                 child: Text(
                   'Submit',

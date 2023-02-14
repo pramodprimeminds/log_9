@@ -55,6 +55,8 @@ class _loginState extends State<login> {
                 child: Container(
                   width: 350,
                   height: 300,
+          //         width: MediaQuery.of(context).size.width *0.4,
+          // height: MediaQuery.of(context).size.height*0.3,
                   child: Image.asset('assets/log_9.png'),
                 ),
               ),

@@ -7,6 +7,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import 'pallete.dart';
 
+
 class Tickets extends StatefulWidget {
   const Tickets({Key? key}) : super(key: key);
 
@@ -18,19 +19,18 @@ class _TicketsState extends State<Tickets> {
   var storage = FlutterSecureStorage();
   var aaa;
   var bbb;
-  final List<String> entries = ['A', 'B', 'C'];
+  
 
-  late List<dynamic> data;
-  // void initState() {
-  //   super.initState();
-  //   fetchData().then((value) {
-  //     setState(() {
-  //       data = value;
-  //     });
-  //   });
-  // }
+  
 
   Future<Map<String, dynamic>> fetchAlbum() async {
+  //     @override
+  // void initState() {
+  //   super.initState();
+  //   getRequest();
+  // }
+
+    // void getRequest() async{
     var session = await storage.read(key: 'cookie');
     var url = Uri.parse(
         "https://mobility-staging.odoo.com/my_services_api/partner/get_ticket_details");
@@ -43,32 +43,28 @@ class _TicketsState extends State<Tickets> {
       print("+++++++++++++++++++++++");
       print(det);
       aaa = det;
-      // final List<String> entries = aaa;
 
       String pet_val = "";
       for (var pet in det) {
         pet_val = pet_val +"\n \n" + pet;
               bbb = pet_val;
       }
+      
     }
- 
     return Map();
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   getRequest();
-  // }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) { 
+
     return Scaffold(
       appBar: AppBar(
         titleTextStyle: Theme.of(context).appBarTheme.titleTextStyle,
         iconTheme: Theme.of(context).appBarTheme.iconTheme,
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         automaticallyImplyLeading: false,
+     
         title: Text(
           'My Tickets',
         ),
@@ -101,7 +97,7 @@ class _TicketsState extends State<Tickets> {
                             children: <InlineSpan>[
                               TextSpan(
                                 text:
-                                bbb.toString(),
+                              bbb.toString(),
                                 style: TextStyle(
                                     fontSize: 25, ),
                               )
@@ -117,7 +113,7 @@ class _TicketsState extends State<Tickets> {
                         //         ); // ListTile
                         //       },
                         //     ),
-
+                       
                       ),
                     ],
                   ),
@@ -132,3 +128,4 @@ class _TicketsState extends State<Tickets> {
     );
   }
 }
+

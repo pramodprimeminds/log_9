@@ -17,8 +17,6 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   var storage = FlutterSecureStorage();
   var aaa;
-  List<String> head = <String>['id', 'name', 'pan_no'];
-  List<String> detail = <String>[];
   Future<Map<String, dynamic>> fetchAlbum() async {
     var session = await storage.read(key: 'cookie');
     var url = Uri.parse(
@@ -33,10 +31,7 @@ class _ProfileState extends State<Profile> {
       print("------------------------------------------------");
       var det = jsonDecode(response.body)['user_list'][0];
       print(det);
-      // print(jsonData);
-      // setState(() {
-      //   aaa = det;
-      // });
+
       return det;
     } //pradeepb@micelio.com
     return Map();
