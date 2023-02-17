@@ -81,13 +81,14 @@ class _Form_viewState extends State<Form_view> {
       "team_name": dropdownValuenew.toString(),
       "name": name.text,
       "registration_number": registration_number.text,
+      "breakdown": dropdownValue.toString(),
       "odoometer": odoometer.text,
       "partner_phone": number.text,
       "landmark": landmark.text,
       "latitude": lat.toString(),
       "longitude": lon.toString(),
       "location": _currentAddress.toString(),
-      "picture_of_defect": photo.toString()
+      "picture_of_defect": photo.toList(),
     };
     print(registration_number.text);
 
@@ -266,7 +267,7 @@ class _Form_viewState extends State<Form_view> {
 //   }
 //   print(base64Images);
 //   return base64Images;
-  
+
 // }
 
 //         print(base64string);
@@ -282,29 +283,30 @@ class _Form_viewState extends State<Form_view> {
 //     } catch (e) {
 //       print("error while picking file.");
 //     }
-Future<List<String>> pickAndConvertImages() async {
-  final ImagePicker _picker = ImagePicker();
-  
-  // Pick multiple images from the gallery
-  final List<XFile>? pickedFiles = await _picker.pickMultiImage();
-  
-  if (pickedFiles == null) {
-    return [];
+//   }
+  Future<List<String>> pickAndConvertImages() async {
+    final ImagePicker _picker = ImagePicker();
+
+    // Pick multiple images from the gallery
+    final List<XFile>? pickedFiles = await _picker.pickMultiImage();
+
+    if (pickedFiles == null && pickedFiles!.length <3 )  {
+      return [];
+    }
+    // Convert the images to base64 strings
+    List<String> base64Images = [];
+    for (var pickedFile in pickedFiles) {
+      List<int> imageBytes = await pickedFile.readAsBytes();
+      String base64Image = base64Encode(imageBytes);
+      base64Images.add(base64Image);
+      setState(() {
+        photo = base64Images;
+      });
+      print(photo);
+    }
+
+    return base64Images;
   }
-  
-  // Convert the images to base64 strings
-  List<String> base64Images = [];
-  for (var pickedFile in pickedFiles) {
-    List<int> imageBytes = await pickedFile.readAsBytes();
-    String base64Image = base64Encode(imageBytes);
-    print("base64Image${base64Image}");
-    log(base64Image);
-    base64Images.add(base64Image);
-  }
-  
-  return base64Images;
-}
-  
 
   @override
   Widget build(BuildContext context) {
@@ -383,8 +385,8 @@ Future<List<String>> pickAndConvertImages() async {
       ),
       body: SingleChildScrollView(
         child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
+          // width: MediaQuery.of(context).size.width,
+          // height: MediaQuery.of(context).size.height,
           child: Column(
             children: [
               Padding(
@@ -499,8 +501,8 @@ Future<List<String>> pickAndConvertImages() async {
                       border: OutlineInputBorder(),
                       labelText: 'Contact Number',
                       isDense: true),
-                  keyboardType: TextInputType.phone,   
-                ), 
+                  keyboardType: TextInputType.phone,
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 10.0),
@@ -515,7 +517,7 @@ Future<List<String>> pickAndConvertImages() async {
                     ElevatedButton(
                         onPressed: () {
                           // openImage();
-                         pickAndConvertImages();
+                          pickAndConvertImages();
                         },
                         child: Text("Photo")),
                   ],
@@ -535,18 +537,19 @@ Future<List<String>> pickAndConvertImages() async {
                       onChanged: (String? newValue) {
                         setState(() {
                           dropdownValue = newValue!;
+                          print(dropdownValue);
                         });
                       },
                       items: <String>[
                         'Yes',
                         'No',
-                      ].map<DropdownMenuItem<String>>((String value) {
+                      ].map<DropdownMenuItem<String>>((String yesno) {
                         return DropdownMenuItem<String>(
-                          value: value,
+                          value: yesno,
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(0, 0, 50, 0),
                             child: Text(
-                              value,
+                              yesno,
                               style: TextStyle(fontSize: 20),
                             ),
                           ),
